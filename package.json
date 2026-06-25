@@ -1,0 +1,40 @@
+{
+  "name": "termogram",
+  "version": "1.0.0",
+  "description": "TERMOGRAM Messenger",
+  "main": "electron-main.js",
+  "author": "TERMOGRAM Team",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "electron": "electron .",
+    "build:exe": "electron-builder --win --x64",
+    "build:apk": "echo Use PWABuilder - see BUILD.md"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "sqlite3": "^5.1.7"
+  },
+  "build": {
+    "appId": "com.termogram.app",
+    "productName": "TERMOGRAM",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron-main.js",
+      "public/**/*"
+    ],
+    "win": {
+      "target": "zip",
+      "icon": "public/icon.png"
+    }
+  }
+}
