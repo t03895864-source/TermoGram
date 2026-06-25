@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0e1621" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TERMOGRAM" />
+    <title>TERMOGRAM</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="https://dummyimage.com/192x192/2f7cf6/ffffff&text=T" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <script>
+      // УДАЛИТЬ SERVICE WORKER ПРЯМО СЕЙЧАС
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+        });
+        // Очистить кэш
+        caches.keys().then(function(names) {
+          for (let name of names) caches.delete(name);
+        });
+      }
+    </script>
+    <main class="app">
+      <section id="authSection" class="auth-card">
+        <h1>TERMOGRAM</h1>
+        <p class="muted">Вход и регистрация</p>
+
+        <div class="auth-grid">
+          <input id="nameInput" placeholder="Имя (например, Timur)" />
+          <input id="usernameInput" placeholder="Username (например, timur_01)" />
+          <input id="passwordInput" type="password" placeholder="Пароль" />
+        </div>
+
+        <div class="auth-actions">
+          <button id="registerBtn">Зарегистрироваться</button>
+          <button id="loginBtn" class="secondary">Войти</button>
+        </div>
+        <p id="authStatus" class="status"></p>
+      </section>
+
+      <section id="messengerSection" class="messenger hidden">
+        <aside class="sidebar">
+          <div class="top-bar">
+            <div class="brand">TERMOGRAM</div>
+            <input id="searchInput" class="search" placeholder="Поиск @username" />
+            <div id="searchResults" class="list floating-results"></div>
+          </div>
+
+          <div class="action-row">
+            <button id="createChannelBtn" class="small secondary">📢 Канал</button>
+          </div>
+
+          <div class="content-area">
+            <div class="list-title">Чаты</div>
+            <div id="chatList" class="list chat-list"></div>
+            
+            <div class="list-title" style="margin-top:16px">Каналы</div>
+            <div id="channelList" class="list channel-list"></div>
+          </div>
+
+          <nav class="bottom-tabs">
+            <button class="tab-btn active" data-tab="chats">💬 Чаты</button>
+            <button class="tab-btn" data-tab="profile">👤 Профиль</button>
+          </nav>
+        </aside>
+
+        <section class="chat-pane">
+          <div id="profileView" class="profile-view hidden">
+            <div class="profile-full">
+              <img id="profileAvatar" class="avatar xlarge" alt="avatar" />
+              <input id="avatarInput" type="file" accept="image/*" class="hidden" />
+              <button id="changeAvatarBtn" class="small secondary">📷 Сменить фото</button>
+              
+              <div class="profile-form">
+                <label>Имя</label>
+                <input id="profileNameInput" placeholder="Ваше имя" />
+                
+                <label>Username</label>
+                <div class="username-row">
+                  <input id="profileUsernameInput" placeholder="@username" />
+                  <button id="saveUsernameBtn" class="small">💾</button>
+                </div>
+                
+                <label>О себе</label>
+                <textarea id="profileBioInput" placeholder="Расскажите о себе" maxlength="140"></textarea>
+                
+                <label>Телефон</label>
+                <input id="profilePhoneInput" placeholder="+7 ___ ___ __ __" />
+                
+                <button id="saveProfileBtn">💾 Сохранить</button>
+                <p id="profileStatus" class="status"></p>
+              </div>
+            </div>
+          </div>
+
+          <div id="channelSettingsView" class="profile-view hidden">
+            <div class="profile-full">
+              <h2 id="channelSettingsName"></h2>
+              <div class="profile-form">
+                <label>Название</label>
+                <input id="channelSettingsNameInput" />
+                
+                <label>Описание</label>
+                <textarea id="channelSettingsDescInput" maxlength="200"></textarea>
+                
+                <button id="saveChannelSettingsBtn">💾 Сохранить</button>
+                <button id="deleteChannelBtn" class="danger">🗑️ Удалить канал</button>
+                <button id="closeChannelSettingsBtn" class="secondary">Закрыть</button>
+                <p id="channelSettingsStatus" class="status"></p>
+              </div>
+            </div>
+          </div>
+
+          <header id="chatHeader" class="chat-header hidden">
+            <div class="chat-user">
+              <img id="activeChatAvatar" class="avatar small" alt="peer-avatar" />
+              <div>
+                <strong id="activeChatName"></strong>
+                <div class="muted">@<span id="activeChatUsername"></span></div>
+                <div class="muted"><span id="activeChatLastSeen">—</span></div>
+              </div>
+            </div>
+            <div class="chat-actions">
+              <button id="channelSettingsBtn" class="small secondary hidden">⚙️</button>
+              <button id="callBtn" class="small">📞 Позвонить</button>
+            </div>
+          </header>
+
+          <div id="emptyState" class="empty-state">
+            <h2>TERMOGRAM</h2>
+            <p class="muted">Выбери чат слева или найди пользователя сверху</p>
+          </div>
+
+          <div id="messages" class="messages hidden"></div>
+
+          <footer id="composer" class="composer hidden">
+            <button id="voiceRecordBtn" class="icon-btn" title="Голосовое сообщение">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+              </svg>
+            </button>
+            <input id="messageInput" placeholder="Написать сообщение..." />
+            <button id="sendBtn">Отправить</button>
+          </footer>
+
+          <section id="callPanel" class="call-panel hidden">
+            <div id="callStatus" class="status"></div>
+            <div class="row">
+              <button id="toggleMicBtn" class="small secondary">🎙️ Микро: ВКЛ</button>
+              <button id="toggleCamBtn" class="small secondary">📷 Камера: ВЫКЛ</button>
+              <button id="endCallBtn" class="small danger">Завершить</button>
+            </div>
+            <video id="localVideo" autoplay muted playsinline class="video-local hidden"></video>
+            <video id="remoteVideo" autoplay playsinline class="video-remote hidden"></video>
+          </section>
+
+          <audio id="remoteAudio" autoplay></audio>
+        </section>
+      </section>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
